@@ -1,63 +1,76 @@
+//FCFS Scheduling Algorithm:
+ import java.util.*;
 
-import java.util.Scanner;
-import java.util.ArrayList;
-import java.util.Collections;
+public class Main {
+public static void main(String args[])
+{
+Scanner sc = new Scanner(System.in);
+System.out.println("Enter no of process: "); int n = sc.nextInt();
+int pid[] = new int[n]; // process ids 
+int ar[] = new int[n]; // arrival times
+int bt[] = new int[n]; // burst or execution times 
+int ct[] = new int[n]; // completion times
+int ta[] = new int[n]; // turn around times 
+int wt[] = new int[n]; // waiting times
+int temp;
+float avgwt=0,avgta=0;
 
-class Process {
-    int id;
-    int arrivalTime;
-    int burstTime;
-    int completionTime;
-    int turnaroundTime;
-    int waitingTime;
+for(int i = 0; i < n; i++)
+{
+System.out.println("Enter process " + (i+1) + " arrival time: "); 
+ar[i] = sc.nextInt();
+System.out.println("Enter process " + (i+1) + " burst time: "); 
+bt[i] = sc.nextInt();
+pid[i] = i+1;
 }
 
-public class FCFS {
-    public static void main(String args[]) {
-        Scanner in = new Scanner(System.in);
+//sorting according to arrival times 
+for(int i = 0 ; i <n; i++)
+{
+for(int j=0; j < n-(i+1) ; j++)
+{
+ if( ar[j] > ar[j+1] )//if arrival time of current procees is greater than nxt process swap
+ {
+temp = ar[j]; ar[j] = ar[j+1]; ar[j+1] = temp; 
+temp = bt[j]; bt[j] = bt[j+1]; bt[j+1] = temp; //swapping
+temp = pid[j]; pid[j] = pid[j+1]; pid[j+1] = temp;
+}
+}
+}
+// finding completion times 
+for(int i = 0 ; i < n; i++)
+{
+if( i == 0)//for first process calculating complition time
+{
+ct[i] = ar[i] + bt[i];
+}
+else     
+{
+if( ar[i] > ct[i-1])//if ar time of another process is greater than ct of prev process ,it means the current process arrives after the previous one finishes
+{
+ct[i] = ar[i] + bt[i];
+}
+else
+ct[i] = ct[i-1] + bt[i];//else if current process arrives before complition of last process add ct of prev process and then bt of nxt process 
+}
 
-        System.out.println("Enter the number of processes:");
-        int numberOfProcesses = in.nextInt();
+ta[i] = ct[i] - ar[i] ; // turnaround time= completion time- arrival time 
+wt[i] = ta[i] - bt[i] ; // waiting time= turnaround time- burst time 
+avgwt += wt[i] ; // total waiting time
+avgta += ta[i] ; // total turnaround time
+}
+System.out.println("\n	------ FCFS ------	\n");
 
-        ArrayList<Process> processes = new ArrayList<>();
-
-        for (int i = 0; i < numberOfProcesses; i++) {
-            Process process = new Process();
-            process.id = i + 1;
-            System.out.println("Enter the burst time of Process " + process.id + ":");
-            process.burstTime = in.nextInt();
-            System.out.println("Enter the arrival time of Process " + process.id + ":");
-            process.arrivalTime = in.nextInt();
-            processes.add(process);
-        }
-
-                // Sort processes based on arrival time
-        Collections.sort(processes, (p1, p2) -> p1.arrivalTime - p2.arrivalTime);
-
-        int currentTime = 0;
-        for (Process process : processes) {
-            if (process.arrivalTime > currentTime) {
-                currentTime = process.arrivalTime;
-            }
-
-            process.completionTime = currentTime + process.burstTime;
-            process.turnaroundTime = process.completionTime - process.arrivalTime;
-            process.waitingTime = process.turnaroundTime - process.burstTime;
-
-            currentTime = process.completionTime;
-        }
-
-        // Display the results
-        System.out.println("Process\tArrival Time\tBurst Time\tCompletion Time\tTurnaround Time\tWaiting Time");
-        for (Process process : processes) {
-            System.out.println(process.id + "\t" + process.arrivalTime + "\t" + process.burstTime + "\t" +
-                    process.completionTime + "\t" + process.turnaroundTime + "\t" + process.waitingTime);
-        }
-
-        // Calculate and display the average turnaround time and waiting time
-        double avgTurnaroundTime = processes.stream().mapToDouble(p -> p.turnaroundTime).average().orElse(0);
-        double avgWaitingTime = processes.stream().mapToDouble(p -> p.waitingTime).average().orElse(0);
-        System.out.println("Average Turnaround Time: " + avgTurnaroundTime);
-        System.out.println("Average Waiting Time: " + avgWaitingTime);
-    }
+System.out.println("==========================================================================================");
+System.out.println("\nProcess\t\tArrivalT\tBurstT\t\tCompleteT\tTurnT\t\tWaitingT"); 
+System.out.println("==========================================================================================");
+ 
+for(int i = 0 ; i< n; i++)
+{
+System.out.println(pid[i] + "\t\t" + ar[i] + "\t\t" + bt[i] + "\t\t" + ct[i] +"\t\t" + ta[i] + "\t\t" + wt[i] ) ;
+}
+sc.close();
+System.out.println("\nAverage waiting time: "+ (avgwt/n)); // printing average waiting time. 
+System.out.println("Average turnaround time:"+(avgta/n)); // printing average turnaround time.
+}
 }
